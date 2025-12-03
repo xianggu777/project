@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI助手调试页面</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .debug-container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-container">
+        <h1>AI助手调试页面</h1>
+
+        <div id="status" class="status info">正在初始化...</div>
+
+        <div style="margin: 20px 0;">
+            <button onclick="testBasicFunction()">测试基础功能</button>
+            <button onclick="testClassification()">测试分类功能</button>
+            <button onclick="testFileUpload()">测试文件上传</button>
+        </div>
+
+        <div id="results" style="margin-top: 20px;"></div>
+    </div>
+
+    <!-- 加载原有脚本 -->
+    <script src="classification/category-rules.js"></script>
+    <script src="classification/text-extractors.js"></script>
+    <script src="classification/document-classifier.js"></script>
+    <script src="app.js"></script>
+
+    <script>
+        function updateStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = `status ${type}`;
+            statusDiv.textContent = message;
+        }
+
+        function addResult(message) {
+            const resultsDiv = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.style.margin = '10px 0';
+            resultDiv.style.padding = '10px';
+            resultDiv.style.background = '#f8f9fa';
+            resultDiv.style.borderRadius = '4px';
+            resultDiv.textContent = message;
+            resultsDiv.appendChild(resultDiv);
+        }
+
+        function testBasicFunction() {
+            updateStatus('测试基础功能...', 'info');
+
+            try {
+                // 测试变量和函数
+                const hasResources = typeof resources !== 'undefined';
+                const hasLoadResources = typeof loadResources === 'function';
+                const hasRenderResources = typeof renderResources === 'function';
+                const hasUploadFiles = typeof uploadFiles === 'function';
+
+                addResult(`✅ resources变量: ${hasResources ? '存在' : '不存在'}`);
+                addResult(`✅ loadResources函数: ${hasLoadResources ? '存在' : '不存在'}`);
+                addResult(`✅ renderResources函数: ${hasRenderResources ? '存在' : '不存在'}`);
+                addResult(`✅ uploadFiles函数: ${hasUploadFiles ? '存在' : '不存在'}`);
+
+                updateStatus('基础功能测试完成', 'success');
+            } catch (error) {
+                updateStatus(`基础功能测试失败: ${error.message}`, 'error');
+                addResult(`❌ 错误: ${error.message}`);
+            }
+        }
+
+        function testClassification() {
+            updateStatus('测试分类功能...', 'info');
+
+            try {
+                const hasCategoryRules = typeof CategoryRules !== 'undefined';
+                const hasTextExtractor = typeof TextExtractor !== 'undefined';
+                const hasDocumentClassifier = typeof DocumentClassifier !== 'undefined';
+                const hasClassificationEnabled = typeof classificationEnabled !== 'undefined';
+
+                addResult(`✅ CategoryRules类: ${hasCategoryRules ? '已加载' : '未加载'}`);
+                addResult(`✅ TextExtractor类: ${hasTextExtractor ? '已加载' : '未加载'}`);
+                addResult(`✅ DocumentClassifier类: ${hasDocumentClassifier ? '已加载' : '未加载'}`);
+                addResult(`✅ classificationEnabled变量: ${hasClassificationEnabled ? '存在' : '不存在'}`);
+
+                if (hasCategoryRules) {
+                    const rules = new CategoryRules();
+                    const allRules = rules.getAllRules();
+                    addResult(`✅ 分类规则数量: ${Object.keys(allRules).length}`);
+                }
+
+                if (hasDocumentClassifier) {
+                    addResult('✅ 可以创建文档分类器实例');
+                }
+
+                updateStatus('分类功能测试完成', 'success');
+            } catch (error) {
+                updateStatus(`分类功能测试失败: ${error.message}`, 'error');
+                addResult(`❌ 错误: ${error.message}`);
+                addResult(`错误堆栈: ${error.stack}`);
+            }
+        }
+
+        function testFileUpload() {
+            updateStatus('测试文件上传...', 'info');
+
+            try {
+                // 检查文件上传相关函数
+                const hasFileInput = document.getElementById('fileInput');
+                const hasHandleFileUpload = typeof handleFileUpload === 'function';
+
+                addResult(`✅ 文件输入框: ${hasFileInput ? '存在' : '不存在'}`);
+                addResult(`✅ handleFileUpload函数: ${hasHandleFileUpload ? '存在' : '不存在'}`);
+
+                if (hasHandleFileUpload) {
+                    addResult('✅ 文件上传处理函数可用');
+                }
+
+                updateStatus('文件上传测试完成', 'success');
+            } catch (error) {
+                updateStatus(`文件上传测试失败: ${error.message}`, 'error');
+                addResult(`❌ 错误: ${error.message}`);
+            }
+        }
+
+        // 页面加载完成后自动运行测试
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                updateStatus('页面加载完成，开始自动测试...', 'info');
+
+                // 运行基础测试
+                testBasicFunction();
+
+                // 延迟运行分类测试
+                setTimeout(function() {
+                    testClassification();
+                }, 1000);
+
+                // 延迟运行文件上传测试
+                setTimeout(function() {
+                    testFileUpload();
+                }, 2000);
+
+                updateStatus('所有测试完成', 'success');
+            }, 500);
+        });
+    </script>
+</body>
+</html>

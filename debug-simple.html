@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI助手简单调试</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>AI助手调试页面</h1>
+        <div id="status">正在初始化...</div>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        console.log('开始调试脚本...');
+
+        function log(message) {
+            const status = document.getElementById('status');
+            const results = document.getElementById('results');
+
+            status.innerHTML = message;
+
+            const resultDiv = document.createElement('div');
+            resultDiv.style.padding = '10px';
+            resultDiv.style.margin = '5px 0';
+            resultDiv.style.background = '#f8f9fa';
+            resultDiv.style.borderRadius = '4px';
+            resultDiv.textContent = message;
+            results.appendChild(resultDiv);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            log('页面加载完成');
+
+            // 尝试加载分类脚本
+            try {
+                const script1 = document.createElement('script');
+                script1.src = 'classification/category-rules.js';
+                script1.onload = function() {
+                    log('CategoryRules.js 加载成功');
+                };
+                script1.onerror = function() {
+                    log('CategoryRules.js 加载失败');
+                };
+                document.head.appendChild(script1);
+            } catch (error) {
+                log('CategoryRules.js 加载出错: ' + error.message);
+            }
+
+            // 尝试加载主应用脚本
+            setTimeout(function() {
+                try {
+                    const script2 = document.createElement('script');
+                    script2.src = 'app.js';
+                    script2.onload = function() {
+                        log('app.js 加载成功');
+
+                        // 检查关键变量
+                        if (typeof resources !== 'undefined') {
+                            log('resources 变量可用');
+                        } else {
+                            log('resources 变量不可用');
+                        }
+
+                        if (typeof classificationEnabled !== 'undefined') {
+                            log('classificationEnabled 变量可用');
+                        } else {
+                            log('classificationEnabled 变量不可用');
+                        }
+                    };
+                    script2.onerror = function() {
+                        log('app.js 加载失败');
+                    };
+                    document.head.appendChild(script2);
+                } catch (error) {
+                    log('app.js 加载出错: ' + error.message);
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
